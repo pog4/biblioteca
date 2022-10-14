@@ -15,7 +15,7 @@ class ContatosController extends Controller
      */
     public function index()
     {
-        $contatos = Contato::all();
+        $contatos = Contato::all(); 
         return view('contato.index',array('contatos' => $contatos,'busca'=>null));
     }
 

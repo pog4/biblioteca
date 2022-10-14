@@ -14,7 +14,7 @@
         </div> 
     @endif
     <br />
-    {{Form::open(['route' => 'livros.store', 'method' => 'POST'])}}
+    {{Form::open(['route' => 'livros.store', 'method' => 'POST'])}} 
         {{Form::label('titulo', 'Titulo')}}
         {{Form::text('titulo','',['class'=>'form-control','required','placeholder'=>'Titulo completo'])}}
         {{Form::label('descricao', 'Descrição')}}
