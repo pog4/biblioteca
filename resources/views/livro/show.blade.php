@@ -15,7 +15,7 @@
         </div>
         <div class="card-footer">
             {{Form::open(['route' => ['livros.destroy',$livro->id],'method' => 'DELETE'])}}
-            <a href="{{url('livros/'.$ivro->id.'/edit')}}" class="btn btn-success">Alterar</a>
+            <a href="{{url('livros/'.$livro->id.'/edit')}}" class="btn btn-success">Alterar</a>
             {{Form::submit('Excluir',['class'=>'btn btn-danger','onclick'=>'return confirm("Confirma exclusão?")'])}}
             <a href="{{url('livros/')}}" class="btn btn-secondary">Voltar</a>
             {{Form::close()}}

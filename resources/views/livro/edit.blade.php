@@ -19,7 +19,7 @@
         </div>
     @endif 
     <br />
-    {{Form::open(['route' => ['livrps.update',$livro->id], 'method' => 'PUT'])}}
+    {{Form::open(['route' => ['livros.update',$livro->id], 'method' => 'PUT'])}}
     {{Form::label('titulo', 'Titulo')}}
         {{Form::text('titulo','',['class'=>'form-control','required','placeholder'=>'Titulo completo'])}}
         {{Form::label('descricao', 'Descrição')}}

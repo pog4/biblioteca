@@ -25,7 +25,7 @@ class LivrosController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function buscar(Request $request) {
-        $livros = Livro::where('titulo','LIKE','%'.$request->input('busca').'%')->orwhere('editora','LIKE','%'.$request->input('busca').'%')->get();
+        $livros = Livro::where('titulo','LIKE','%'.$request->input('busca').'%')->orwhere('autor','LIKE','%'.$request->input('busca').'%')->get();
         return view('livro.index',array('livros' => $livros,'busca'=>$request->input('busca')));
     }
 
