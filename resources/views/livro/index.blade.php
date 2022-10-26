@@ -1,4 +1,4 @@
-@extends('layout.app')
+@extends('layouts.app')
 @section('title','Listagem de Livros')
 @section('content')
     <h1>Listagem de Livros</h1>
@@ -9,9 +9,11 @@
     @endif
     {{Form::open(['url'=>'livros/buscar','method'=>'GET'])}}
         <div class="row">
-            <div class="col-sm-3">
-                <a class="btn btn-success" href="{{url('livros/create')}}">Criar</a>
-            </div>
+            @if ((Auth::check()) && (Auth::user()->isAdmin()))
+                <div class="col-sm-3">
+                    <a class="btn btn-success" href="{{url('livros/create')}}">Criar</a>
+                </div>
+            @endif
             <div class="col-sm-9">
                 <div class="input-group ml-5">
                     @if($busca !== null)
@@ -25,7 +27,7 @@
                 </div>
             </div>
         </div>
-    {{Form::close()}} 
+    {{Form::close()}}
     <br />
     <table class="table table-striped">
         @foreach ($livros as $livro)
@@ -36,4 +38,5 @@
             </tr>
         @endforeach
     </table>
+    {{ $livros->links() }}
 @endsection

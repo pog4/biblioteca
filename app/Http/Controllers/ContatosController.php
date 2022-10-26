@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Contato;
 use Session;
@@ -15,7 +16,7 @@ class ContatosController extends Controller
      */
     public function index()
     {
-        $contatos = Contato::all(); 
+        $contatos = Contato::paginate(5);
         return view('contato.index',array('contatos' => $contatos,'busca'=>null));
     }
 
@@ -25,7 +26,7 @@ class ContatosController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function buscar(Request $request) {
-        $contatos = Contato::where('nome','LIKE','%'.$request->input('busca').'%')->orwhere('email','LIKE','%'.$request->input('busca').'%')->get();
+        $contatos = Contato::where('nome','LIKE','%'.$request->input('busca').'%')->orwhere('email','LIKE','%'.$request->input('busca').'%')->paginate(5);
         return view('contato.index',array('contatos' => $contatos,'busca'=>$request->input('busca')));
     }
 
@@ -37,7 +38,13 @@ class ContatosController extends Controller
      */
     public function create()
     {
-        return view('contato.create');
+        if ((Auth::check()) && (Auth::user()->isAdmin())) {
+            return view('contato.create');
+        }
+        else {
+            return redirect('login');
+        }
+
     }
 
     /**
@@ -48,21 +55,31 @@ class ContatosController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
-            'nome' => 'required|min:3]',
-            'email' => 'required|e-mail',
-            'telefone' => 'required',
-            'cidade' => 'required',
-            'estado' => 'required',
-        ]);
-        $contato = new Contato();
-        $contato->nome = $request->input('nome');
-        $contato->email = $request->input('email');
-        $contato->telefone = $request->input('telefone');
-        $contato->cidade = $request->input('cidade');
-        $contato->estado = $request->input('estado');
-        if($contato->save()) {
-            return redirect('contatos');
+        if ((Auth::check()) && (Auth::user()->isAdmin())) {
+            $this->validate($request,[
+                'nome' => 'required|min:3',
+                'email' => 'required|e-mail',
+                'telefone' => 'required',
+                'cidade' => 'required',
+                'estado' => 'required',
+            ]);
+            $contato = new Contato();
+            $contato->nome = $request->input('nome');
+            $contato->email = $request->input('email');
+            $contato->telefone = $request->input('telefone');
+            $contato->cidade = $request->input('cidade');
+            $contato->estado = $request->input('estado');
+            if($contato->save()) {
+                if($request->hasFile('foto')){
+                    $imagem = $request->file('foto');
+                    $nomearquivo = md5($contato->id).".".$imagem->getClientOriginalExtension();
+                    //dd($imagem, $nomearquivo,$contato->id);
+                    $request->file('foto')->move(public_path('.\img\contatos'),$nomearquivo);
+                }
+                return redirect('contatos');
+            }
+        } else {
+            return redirect('login');
         }
     }
 
@@ -86,8 +103,12 @@ class ContatosController extends Controller
      */
     public function edit($id)
     {
-        $contato = Contato::find($id);
-        return view('contato.edit',array('contato' => $contato));
+        if ((Auth::check()) && (Auth::user()->isAdmin())) {
+            $contato = Contato::find($id);
+            return view('contato.edit',array('contato' => $contato));
+        } else {
+            return redirect('login');
+        }
     }
 
     /**
@@ -99,38 +120,53 @@ class ContatosController extends Controller
      */
     public function update(Request $request, $id)
     {
-
-        $this->validate($request,[
-            'nome' => 'required|min:3]',
-            'email' => 'required|e-mail|min:3',
-            'telefone' => 'required',
-            'cidade' => 'required',
-            'estado' => 'required',
-        ]);
-
-        $contato = Contato::find($id);
-        $contato->nome = $request->input('nome');
-        $contato->email = $request->input('email');
-        $contato->telefone = $request->input('telefone');
-        $contato->cidade = $request->input('cidade');
-        $contato->estado = $request->input('estado');
-        if($contato->save()) {
-            Session::flash('mensagem','Contato alterado com sucesso');
-            return redirect()->back();
+        if ((Auth::check()) && (Auth::user()->isAdmin())) {
+            $this->validate($request,[
+                'nome' => 'required|min:3',
+                'email' => 'required|e-mail|min:3',
+                'telefone' => 'required',
+                'cidade' => 'required',
+                'estado' => 'required',
+            ]);
+            $contato = Contato::find($id);
+            if($request->hasFile('foto')){
+                $imagem = $request->file('foto');
+                $nomearquivo = md5($contato->id).".".$imagem->getClientOriginalExtension();
+                $request->file('foto')->move(public_path('.\img\contatos'),$nomearquivo);
+            }
+            $contato->nome = $request->input('nome');
+            $contato->email = $request->input('email');
+            $contato->telefone = $request->input('telefone');
+            $contato->cidade = $request->input('cidade');
+            $contato->estado = $request->input('estado');
+            if($contato->save()) {
+                Session::flash('mensagem','Contato alterado com sucesso');
+                return redirect()->back();
+            }
+        } else {
+            return redurect('login');
         }
     }
 
     /**
      * Remove the specified resource from storage.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $contato = Contato::find($id);
-        $contato->delete();
-        Session::flash('mensagem','Contato Excluído com Sucesso');
-        return redirect(url('contatos/'));
+        if ((Auth::check()) && (Auth::user()->isAdmin())) {
+            $contato = Contato::find($id);
+            if (isset($request->foto)) {
+            unlink($request->foto);
+            }
+            $contato->delete();
+            Session::flash('mensagem','Contato Excluído com Sucesso Foto:');
+            return redirect(url('contatos/'));
+        } else {
+            return redirect('login');
+        }
     }
 }
