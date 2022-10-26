@@ -7,7 +7,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Biblioteca') }} @yield('title')</title>
+    <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -30,15 +30,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('contatos') }}">Contatos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('livros') }}">Livros</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('emprestimos') }}">Empréstimos</a>
-                        </li>
+
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -81,9 +73,7 @@
         </nav>
 
         <main class="py-4">
-            <div class="container-fluid">
-                @yield('content')
-            </div>
+            @yield('content')
         </main>
     </div>
 </body>
